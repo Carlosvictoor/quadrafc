@@ -1,0 +1,50 @@
+{# Editar time, quadra, horário do jogo e regras. #}
+{% extends "base.html" %}
+{% from "_macros.html" import icon, field, money_field %}
+{% block title %}Editar quadra{% endblock %}
+
+{% block content %}
+<a class="back-link" href="{{ url_for('main.court') }}">{{ icon("arrow-left") }} Quadra e jogos</a>
+<div class="page-head"><h1>Editar time e quadra</h1></div>
+
+<form method="post" class="stack" style="max-width: 760px;" novalidate>
+  {{ form.csrf_token }}
+  <section class="card form">
+    <div class="card-title" style="margin: 0;">Time</div>
+    <div class="grid grid-2">
+      {{ field(form.name, placeholder="Ex: Resenha FC", extra={"maxlength": 60}) }}
+      {{ field(form.description, placeholder="Ex: Time de amigos, grandes jogos!", extra={"maxlength": 120}) }}
+    </div>
+  </section>
+
+  <section class="card form">
+    <div class="card-title" style="margin: 0;">Quadra</div>
+    <div class="grid grid-2">
+      {{ field(form.court_name, placeholder="Ex: Quadra do Zé", extra={"maxlength": 80}) }}
+      {{ field(form.court_address, placeholder="Ex: Rua das Palmeiras, 123 - São Paulo/SP", extra={"maxlength": 160}) }}
+    </div>
+    <div class="grid grid-2">
+      {{ money_field(form.court_cost, hint="Aluguel total da quadra no mês.") }}
+      {{ money_field(form.price_per_player, hint="Usado como padrão ao cadastrar jogadores.") }}
+    </div>
+  </section>
+
+  <section class="card form">
+    <div class="card-title" style="margin: 0;">Jogo semanal</div>
+    <div class="grid grid-3">
+      {{ field(form.game_weekday) }}
+      {{ field(form.game_start, extra={"type": "time"}) }}
+      {{ field(form.game_end, extra={"type": "time"}) }}
+    </div>
+  </section>
+
+  <section class="card form">
+    {{ field(form.rules, placeholder="Pagamento até o dia do jogo\nFaltas devem ser avisadas\nRespeito sempre!", hint="Escreva uma regra por linha (até 20).") }}
+  </section>
+
+  <div class="form-actions">
+    <a class="btn btn-outline" href="{{ url_for('main.court') }}">Cancelar</a>
+    <button type="submit" class="btn btn-primary" data-loading-text="Salvando...">Salvar</button>
+  </div>
+</form>
+{% endblock %}

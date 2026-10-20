@@ -1,0 +1,52 @@
+{# Notificações: lembrete do próximo jogo (calculado) + avisos gravados. #}
+{% extends "base.html" %}
+{% from "_macros.html" import icon %}
+{% block title %}Notificações{% endblock %}
+
+{% block content %}
+{% set notif_icons = {"payment_confirmed": "check", "payment_pending": "alert", "new_player": "user-plus", "reminder": "bell"} %}
+<div class="page-head">
+  <h1>Notificações</h1>
+  {% if items %}
+  <form method="post" action="{{ url_for('main.notifications_clear') }}"
+        data-confirm="Todos os avisos serão apagados." data-confirm-title="Limpar notificações?" data-confirm-ok="Limpar">
+    {{ clear_form.csrf_token }}
+    <button type="submit" class="btn btn-outline btn-sm">{{ icon("trash") }} Limpar tudo</button>
+  </form>
+  {% endif %}
+</div>
+
+<ul class="list" style="max-width: 760px;">
+  {# Lembrete automático: aparece quando o jogo é nos próximos 3 dias. #}
+  {% if show_reminder %}
+  <li class="list-item notif unread">
+    <span class="notif-icon reminder">{{ icon("bell") }}</span>
+    <div class="grow">
+      <b>Próximo jogo</b>
+      <div class="muted small">{{ game|data_longa }} às {{ team.game_start }}{% if team.court_name %} · {{ team.court_name }}{% endif %}.
+        {% if summary.pending_count %}Ainda há {{ summary.pending_count }} pendente{{ "s" if summary.pending_count != 1 }}.{% endif %}</div>
+    </div>
+    <time>Em breve</time>
+  </li>
+  {% endif %}
+
+  {% for n in items %}
+  <li class="list-item notif {{ 'unread' if n.id in unread_ids }}">
+    <span class="notif-icon {{ n.type }}">{{ icon(notif_icons.get(n.type, "info")) }}</span>
+    <div class="grow">
+      <b>{{ n.title }}</b>
+      <div class="muted small">{{ n.body }}</div>
+    </div>
+    <time datetime="{{ n.created_at.isoformat() }}">{{ n.created_at|data_hora }}</time>
+  </li>
+  {% else %}
+    {% if not show_reminder %}
+    <li class="card empty">
+      <div class="empty-icon">{{ icon("bell") }}</div>
+      <h3>Nenhuma notificação</h3>
+      <p>Avisos de pagamentos e novos jogadores aparecerão aqui.</p>
+    </li>
+    {% endif %}
+  {% endfor %}
+</ul>
+{% endblock %}

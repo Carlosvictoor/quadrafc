@@ -1,0 +1,50 @@
+{# Estrutura HTML comum a TODAS as páginas: cabeçalho, fontes, CSS,
+   mensagens (toasts), janela de confirmação e JavaScript. #}
+{% from "_macros.html" import icon %}
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#050B12">
+  <meta name="description" content="QuadraPro: organize os pagamentos da quadra do seu time. Seu time, sem boleto e sem confusão.">
+  <title>{% block title %}QuadraPro{% endblock %} · QuadraPro</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
+  {# Fontes: Rajdhani (títulos esportivos) e Inter (textos). #}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  {% block body %}{% endblock %}
+
+  {# Mensagens de sucesso/erro enviadas pelo servidor (flash). #}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="toasts" aria-live="polite">
+    {% for category, message in messages %}
+    <div class="toast {{ category }}" role="status">
+      {{ icon("check-circle" if category == "success" else ("alert" if category == "error" else "info")) }}
+      <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
+
+  {# Janela de confirmação usada pelos formulários com data-confirm. #}
+  <div class="modal-backdrop" id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <h3 id="modal-title" data-modal-title>Tem certeza?</h3>
+      <p data-modal-text></p>
+      <div class="form-actions">
+        <button type="button" class="btn btn-outline" data-modal-cancel>Cancelar</button>
+        <button type="button" class="btn btn-danger" data-modal-ok>Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</body>
+</html>

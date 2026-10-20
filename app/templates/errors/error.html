@@ -1,0 +1,12 @@
+{# Página de erro amigável (404, 400, 500). #}
+{% extends "layout.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block body %}
+<main class="doc" style="text-align: center; padding-top: 12vh;">
+  <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="" style="width: 96px; margin: 0 auto 16px;">
+  <p class="green" style="font-family: var(--display); font-size: 48px; font-weight: 700; margin: 0;">{{ code }}</p>
+  <h1>{{ title }}</h1>
+  <p class="muted">{{ message }}</p>
+  <a class="btn btn-primary" href="{{ url_for('main.dashboard') }}" style="margin-top: 16px;">Voltar ao início</a>
+</main>
+{% endblock %}

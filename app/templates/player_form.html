@@ -1,0 +1,54 @@
+{# Adicionar / editar jogador. #}
+{% extends "base.html" %}
+{% from "_macros.html" import icon, field, money_field %}
+{% block title %}{{ "Editar jogador" if player else "Adicionar jogador" }}{% endblock %}
+
+{% block content %}
+<a class="back-link" href="{{ url_for('main.players') }}">{{ icon("arrow-left") }} Jogadores</a>
+<div class="page-head"><h1>{{ "Editar jogador" if player else "Adicionar jogador" }}</h1></div>
+
+<div class="card" style="max-width: 640px;">
+  <form method="post" class="form" novalidate>
+    {{ form.csrf_token }}
+    {{ field(form.name, placeholder="Ex: Lucas Silva", extra={"maxlength": 60, "autofocus": not player}) }}
+    <div class="grid grid-2">
+      {{ field(form.nickname, placeholder="Ex: Lucão", extra={"maxlength": 40}) }}
+      {{ field(form.phone, placeholder="(11) 98765-4321", type="tel", extra={"maxlength": 30, "inputmode": "tel"}) }}
+    </div>
+    {{ money_field(form.amount, hint="Quanto este jogador paga por mês.") }}
+
+    {% if not player %}
+    {# Situação inicial: só ao cadastrar. #}
+    <div class="field">
+      <span class="label">Situação inicial</span>
+      <div class="segmented" role="radiogroup">
+        {% for sub in form.initial_status %}
+        <label>{{ sub() }}<span class="{{ 'opt-paid' if sub.data == 'paid' else 'opt-pending' }}">{{ sub.label.text }}</span></label>
+        {% endfor %}
+      </div>
+      <div class="hint">"Pago" já registra o pagamento de {{ current_month.name|lower }} como Pix (dá para alterar depois).</div>
+    </div>
+    {% else %}
+    <label class="check">{{ form.active() }} Jogador ativo <span class="muted small">(inativos não entram no valor pendente)</span></label>
+    {% endif %}
+
+    <div class="form-actions">
+      <a class="btn btn-outline" href="{{ url_for('main.players') }}">Cancelar</a>
+      <button type="submit" class="btn btn-primary" data-loading-text="Salvando...">Salvar</button>
+    </div>
+  </form>
+</div>
+
+{% if player %}
+<div class="card" style="max-width: 640px; margin-top: 16px;">
+  <div class="row-between wrap">
+    <div><b>Remover jogador</b><br><span class="muted small">Os pagamentos que ele já fez continuam no histórico.</span></div>
+    <form method="post" action="{{ url_for('main.player_delete', player_id=player.id) }}"
+          data-confirm="{{ player.name }} sairá da lista de jogadores." data-confirm-title="Remover jogador?" data-confirm-ok="Remover">
+      {{ delete_form.csrf_token }}
+      <button type="submit" class="btn btn-danger">{{ icon("trash") }} Remover</button>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

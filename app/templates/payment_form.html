@@ -1,0 +1,40 @@
+{# Registrar pagamento. #}
+{% extends "base.html" %}
+{% from "_macros.html" import icon, field, money_field %}
+{% block title %}Registrar pagamento{% endblock %}
+
+{% block content %}
+<a class="back-link" href="{{ url_for('main.payments', mes=month.key) }}">{{ icon("arrow-left") }} Pagamentos</a>
+<div class="page-head"><h1>Registrar pagamento</h1></div>
+
+<div class="card" style="max-width: 640px;">
+  <form method="post" class="form" novalidate>
+    {{ form.csrf_token }}
+    {{ form.month(type="hidden") }}
+    <div class="field">
+      {{ form.player_id.label }}
+      {{ form.player_id(**{"data-player-select": ""}) }}
+      {% for e in form.player_id.errors %}<div class="error">{{ e }}</div>{% endfor %}
+      <div class="hint" data-paid-warning hidden style="color: var(--yellow);">
+        Este jogador já pagou em {{ month.label|lower }}. Salvar vai substituir o pagamento anterior.
+      </div>
+    </div>
+    <p class="muted small" style="margin: -6px 0 0;">Referente a <b>{{ month.label }}</b></p>
+
+    <div class="grid grid-2">
+      {{ money_field(form.amount) }}
+      {{ field(form.paid_on) }}
+    </div>
+    {{ field(form.method) }}
+    {{ field(form.note, placeholder="Ex: Pagamento via Pix", extra={"maxlength": 200}) }}
+
+    <div class="form-actions">
+      <a class="btn btn-outline" href="{{ url_for('main.payments', mes=month.key) }}">Cancelar</a>
+      <button type="submit" class="btn btn-primary" data-loading-text="Confirmando...">{{ icon("check") }} Confirmar pagamento</button>
+    </div>
+  </form>
+</div>
+
+{# Dados dos jogadores para o JavaScript preencher o valor ao trocar de jogador. #}
+<script type="application/json" id="players-data">{{ players_json|tojson }}</script>
+{% endblock %}

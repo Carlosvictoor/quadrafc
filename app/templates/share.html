@@ -1,0 +1,51 @@
+{# Compartilhar resumo do mês: prévia visual, botão do WhatsApp e copiar texto. #}
+{% extends "base.html" %}
+{% from "_macros.html" import icon, month_nav %}
+{% block title %}Compartilhar resumo{% endblock %}
+
+{% block content %}
+<a class="back-link" href="{{ url_for('main.dashboard') }}">{{ icon("arrow-left") }} Início</a>
+<div class="page-head"><h1>Compartilhar resumo</h1></div>
+<div style="margin-bottom: 16px;">{{ month_nav("main.share", month, can_next) }}</div>
+
+<div class="grid grid-2" style="align-items: start;">
+  {# Prévia em formato de "card" (como aparece na referência). #}
+  <section class="share-card">
+    <div class="row" style="margin-bottom: 14px;">
+      <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="" style="width: 48px;">
+      <div>
+        <div class="muted small">RESUMO · {{ month.label|upper }}</div>
+        <b style="font-family: var(--display); font-size: 24px;">{{ team.name }}</b>
+        {% if team.price_per_player_cents %}<div class="muted small">Valor por jogador: {{ team.price_per_player_cents|brl }}</div>{% endif %}
+      </div>
+    </div>
+    <div class="grid grid-2" style="gap: 10px;">
+      <div class="card" style="padding: 12px;"><div class="stat-label">Pagaram</div><div class="stat-value green">{{ summary.paid_count }}</div></div>
+      <div class="card" style="padding: 12px;"><div class="stat-label">Pendentes</div><div class="stat-value red">{{ summary.pending_count }}</div></div>
+    </div>
+    <div class="grid grid-3" style="gap: 10px; margin-top: 10px;">
+      <div><div class="stat-label">Arrecadado</div><b class="green">{{ summary.collected_cents|brl }}</b></div>
+      <div><div class="stat-label">Pendente</div><b class="red">{{ summary.pending_cents|brl }}</b></div>
+      <div><div class="stat-label">Quadra</div><b>{{ team.court_cost_cents|brl }}</b></div>
+    </div>
+    {% if summary.pending_players %}
+    <div style="margin-top: 14px;">
+      <div class="stat-label" style="margin-bottom: 6px;">Lista de pendentes</div>
+      <ul class="mini-list">
+        {% for p in summary.pending_players %}<li><span class="dot"></span><span style="flex: 1;">{{ p.name }}</span><span class="muted">{{ p.amount_cents|brl }}</span></li>{% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  </section>
+
+  <section class="card stack">
+    <div class="card-title" style="margin: 0;">Texto para o grupo</div>
+    <pre class="share-text" id="share-text">{{ text }}</pre>
+    <div class="actions-row">
+      {# Abre o WhatsApp com o texto pronto (no celular ou no WhatsApp Web). #}
+      <a class="btn btn-whatsapp" href="{{ whatsapp_url }}" target="_blank" rel="noopener">{{ icon("whatsapp") }} Compartilhar</a>
+      <button type="button" class="btn btn-outline" data-copy="#share-text">{{ icon("copy") }} Copiar texto</button>
+    </div>
+  </section>
+</div>
+{% endblock %}

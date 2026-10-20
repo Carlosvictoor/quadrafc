@@ -1,0 +1,58 @@
+{# Layout do painel (usuário logado): barra superior + menu lateral + conteúdo.
+   Cada página define a variável "nav" para destacar o item do menu. #}
+{% extends "layout.html" %}
+{% from "_macros.html" import icon, avatar %}
+
+{% block body %}
+<div class="app">
+  <header class="topbar">
+    <button class="icon-btn menu-toggle" type="button" data-menu-toggle aria-label="Abrir menu" aria-expanded="false">{{ icon("menu") }}</button>
+    <a class="brand" href="{{ url_for('main.dashboard') }}">
+      <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="">
+      <span class="brand-name">QUADRA<b>PRO</b></span>
+    </a>
+    <span class="spacer"></span>
+    <a class="icon-btn" href="{{ url_for('main.notifications') }}" aria-label="Notificações{% if unread_count %} ({{ unread_count }} novas){% endif %}">
+      {{ icon("bell") }}
+      {% if unread_count %}<span class="badge">{{ unread_count if unread_count < 100 else "99+" }}</span>{% endif %}
+    </a>
+    <a class="user-chip" href="{{ url_for('main.settings') }}">
+      {{ avatar(current_user.name) }}
+      <span class="user-name">{{ current_user.name }}</span>
+    </a>
+  </header>
+
+  {# Menu lateral (no celular vira gaveta aberta pelo botão ☰). #}
+  <aside class="sidebar" aria-label="Menu principal">
+    {% set items = [
+      ("inicio", "main.dashboard", "home", "Início"),
+      ("jogadores", "main.players", "users", "Jogadores"),
+      ("pagamentos", "main.payments", "wallet", "Pagamentos"),
+      ("historico", "main.history", "history", "Histórico"),
+      ("quadra", "main.court", "court", "Quadra e Jogos"),
+      ("notificacoes", "main.notifications", "bell", "Notificações"),
+      ("configuracoes", "main.settings", "settings", "Configurações"),
+    ] %}
+    <ul class="nav">
+      {% for key, endpoint, ic, label in items %}
+      <li>
+        <a href="{{ url_for(endpoint) }}" class="{{ 'active' if nav == key }}" {% if nav == key %}aria-current="page"{% endif %}>
+          {{ icon(ic) }} {{ label }}
+          {% if key == "notificacoes" and unread_count %}<span class="nav-badge">{{ unread_count }}</span>{% endif %}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    <div class="sidebar-footer">
+      <form method="post" action="{{ url_for('auth.logout') }}">
+        {{ logout_form.csrf_token }}
+        <button type="submit" data-loading="off">{{ icon("logout") }} Sair</button>
+      </form>
+    </div>
+  </aside>
+
+  <main class="content" id="conteudo">
+    {% block content %}{% endblock %}
+  </main>
+</div>
+{% endblock %}

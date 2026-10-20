@@ -1,0 +1,15 @@
+{# Tela "Criar nova senha" (aberta pelo link enviado por e-mail). #}
+{% extends "auth/auth_layout.html" %}
+{% from "_macros.html" import password_field %}
+{% block title %}Nova senha{% endblock %}
+
+{% block form %}
+<h1>Criar nova senha</h1>
+<p>Escolha uma senha com pelo menos 6 caracteres.</p>
+<form method="post" class="form" novalidate>
+  {{ form.csrf_token }}
+  {{ password_field(form.password, placeholder="Nova senha", autocomplete="new-password") }}
+  {{ password_field(form.confirm, placeholder="Repita a nova senha", autocomplete="new-password") }}
+  <button type="submit" class="btn btn-primary btn-block">Salvar nova senha</button>
+</form>
+{% endblock %}

@@ -1,0 +1,76 @@
+{# Histórico de pagamentos: filtros, totais, tabela e exportação CSV. #}
+{% extends "base.html" %}
+{% from "_macros.html" import icon, chip, month_nav, method_icon %}
+{% block title %}Histórico{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <h1>Histórico de pagamentos</h1>
+  <a class="btn btn-outline btn-sm" href="{{ url_for('main.history_csv', mes=month.key, jogador=player_id, situacao=status) }}">{{ icon("download") }} Exportar CSV</a>
+</div>
+
+{# Filtros: o mês usa as setas; jogador e situação usam o formulário. #}
+<div class="card stack" style="margin-bottom: 16px;">
+  {{ month_nav("main.history", month, can_next, {"jogador": player_id, "situacao": status}) }}
+  <form method="get" class="grid grid-3" style="align-items: end;">
+    <input type="hidden" name="mes" value="{{ month.key }}">
+    <div class="field">
+      <label for="f-jogador">Jogador</label>
+      <select id="f-jogador" name="jogador">
+        <option value="">Todos</option>
+        {% for p in team.players %}
+        <option value="{{ p.id }}" {{ "selected" if player_id == p.id }}>{{ p.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label for="f-situacao">Situação</label>
+      <select id="f-situacao" name="situacao">
+        <option value="todos" {{ "selected" if status == "todos" }}>Todos</option>
+        <option value="pago" {{ "selected" if status == "pago" }}>Pagos</option>
+        <option value="pendente" {{ "selected" if status == "pendente" }}>Pendentes</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary" data-loading="off">Filtrar</button>
+  </form>
+</div>
+
+<div class="grid grid-3 stats-row" style="margin-bottom: 16px;">
+  <div class="card stat">
+    <span class="stat-icon green">{{ icon("check") }}</span>
+    <div><div class="stat-label">Total arrecadado</div><div class="stat-value green">{{ summary.collected_cents|brl }}</div></div>
+  </div>
+  <div class="card stat">
+    <span class="stat-icon red">{{ icon("alert") }}</span>
+    <div><div class="stat-label">Total pendente</div><div class="stat-value red">{{ summary.pending_cents|brl }}</div></div>
+  </div>
+  <div class="card stat">
+    <span class="stat-icon blue">{{ icon("users") }}</span>
+    <div><div class="stat-label">Total de jogadores</div><div class="stat-value">{{ summary.total_players }}</div></div>
+  </div>
+</div>
+
+{% if rows %}
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Data</th><th>Jogador</th><th class="num">Valor</th><th>Forma</th><th>Status</th><th class="hide-mobile">Responsável</th></tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+      <tr {% if r.note %}title="{{ r.note }}"{% endif %}>
+        <td>{{ r.date|dia_mes }}</td>
+        <td>{{ r.player }}</td>
+        <td class="num">{{ r.amount|brl }}</td>
+        <td>{% if r.paid %}<span class="method">{{ method_icon(r.method_key) }} {{ r.method }}</span>{% else %}<span class="muted">—</span>{% endif %}</td>
+        <td>{{ chip(r.paid) }}</td>
+        <td class="hide-mobile muted">{{ r.by or "—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="card empty"><div class="empty-icon">{{ icon("history") }}</div><h3>Nada por aqui</h3><p>Nenhum registro para os filtros escolhidos.</p></div>
+{% endif %}
+{% endblock %}

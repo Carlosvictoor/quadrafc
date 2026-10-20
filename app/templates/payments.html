@@ -1,0 +1,74 @@
+{# Pagamentos do mês: progresso, pendentes (com "Pagar") e pagos (com "Desfazer"). #}
+{% extends "base.html" %}
+{% from "_macros.html" import icon, avatar, chip, month_nav, empty, method_icon %}
+{% block title %}Pagamentos{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <h1>Pagamentos</h1>
+  <a class="btn btn-primary" href="{{ url_for('main.payment_new', mes=month.key) }}">{{ icon("plus-circle") }} Registrar pagamento</a>
+</div>
+
+<div style="margin-bottom: 16px;">{{ month_nav("main.payments", month, can_next) }}</div>
+
+{% if not team.active_players %}
+  <div class="card">{{ empty("wallet", "Sem jogadores para cobrar", "Adicione jogadores para acompanhar os pagamentos do mês.", url_for('main.player_new'), "Adicionar jogador") }}</div>
+{% else %}
+<div class="stack">
+  <section class="card">
+    <div class="grid grid-3">
+      <div><div class="stat-label">Arrecadado</div><div class="stat-value green">{{ summary.collected_cents|brl }}</div></div>
+      <div><div class="stat-label">Falta receber</div><div class="stat-value red">{{ summary.pending_cents|brl }}</div></div>
+      <div><div class="stat-label">Total esperado</div><div class="stat-value">{{ summary.expected_cents|brl }}</div></div>
+    </div>
+    <div class="progress" style="margin-top: 16px;"><span data-progress="{{ summary.percent_paid }}"></span></div>
+    <p class="muted small" style="margin: 8px 0 0;">{{ summary.paid_count }} de {{ summary.total_players }} pagaram ({{ summary.percent_paid }}%)</p>
+  </section>
+
+  <div class="grid grid-2">
+    <section class="card">
+      <div class="card-title">Pendentes ({{ summary.pending_count }})</div>
+      {% if summary.pending_players %}
+      <ul class="list">
+        {% for p in summary.pending_players %}
+        <li class="list-item">
+          {{ avatar(p.name, false) }}
+          <div class="grow"><div class="name">{{ p.name }}</div><div class="red small"><b>{{ p.amount_cents|brl }}</b></div></div>
+          <a class="btn btn-primary btn-sm" href="{{ url_for('main.payment_new', jogador=p.id, mes=month.key) }}">Pagar</a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+        <p class="green">Todo mundo pagou este mês! 🎉</p>
+      {% endif %}
+    </section>
+
+    <section class="card">
+      <div class="card-title">Pagos ({{ summary.paid_count }})</div>
+      {% if paid_rows %}
+      <ul class="list">
+        {% for p, pay in paid_rows %}
+        <li class="list-item">
+          {{ avatar(p.name, true) }}
+          <div class="grow">
+            <div class="name">{{ p.name }}</div>
+            <div class="muted small"><span class="method">{{ method_icon(pay.method) }} {{ pay.method_label }}</span> · {{ pay.paid_on|dia_mes }}</div>
+          </div>
+          <b class="hide-mobile">{{ pay.amount_cents|brl }}</b>
+          <form method="post" action="{{ url_for('main.payment_undo', payment_id=pay.id) }}"
+                data-confirm="{{ p.name }} voltará para a lista de pendentes de {{ month.label|lower }}."
+                data-confirm-title="Desfazer pagamento?" data-confirm-ok="Desfazer">
+            {{ action_form.csrf_token }}
+            <button type="submit" class="icon-btn" aria-label="Desfazer pagamento de {{ p.name }}" title="Desfazer pagamento">{{ icon("undo") }}</button>
+          </form>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+        <p class="muted">Nenhum pagamento registrado neste mês.</p>
+      {% endif %}
+    </section>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

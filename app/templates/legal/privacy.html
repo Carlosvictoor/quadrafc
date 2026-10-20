@@ -1,0 +1,32 @@
+{# Política de Privacidade (texto modelo baseado na LGPD: revise antes de publicar). #}
+{% extends "layout.html" %}
+{% block title %}Política de privacidade{% endblock %}
+{% block body %}
+<main class="doc">
+  <a class="brand" href="{{ url_for('main.dashboard') }}" style="margin-bottom: 24px;">
+    <img src="{{ url_for('static', filename='img/logo.svg') }}" alt=""><span class="brand-name">QUADRA<b>PRO</b></span>
+  </a>
+  <h1>Política de Privacidade</h1>
+  <p class="muted">Última atualização: {{ current_month.label }}</p>
+
+  <h2>Quais dados coletamos</h2>
+  <ul>
+    <li><b>Do administrador:</b> nome, e-mail e senha (guardada de forma criptografada, nunca em texto).</li>
+    <li><b>Do time:</b> nome do time, dados da quadra, nomes, apelidos e telefones dos jogadores e os pagamentos registrados.</li>
+  </ul>
+
+  <h2>Para que usamos</h2>
+  <p>Somente para o funcionamento do QuadraPro: entrar na sua conta, calcular os totais do mês e mostrar o histórico. Não vendemos nem compartilhamos seus dados com terceiros.</p>
+
+  <h2>Cookies</h2>
+  <p>Usamos apenas cookies essenciais para manter você conectado. Não usamos cookies de propaganda.</p>
+
+  <h2>Seus direitos (LGPD)</h2>
+  <p>Você pode ver e corrigir seus dados a qualquer momento no site, e excluir a conta com todos os dados em Configurações → Excluir conta.</p>
+
+  <h2>Segurança</h2>
+  <p>As senhas são protegidas com hash, a conexão é criptografada (HTTPS) e cada administrador só tem acesso aos dados do próprio time.</p>
+
+  <p style="margin-top: 32px;"><a href="javascript:history.back()">← Voltar</a></p>
+</main>
+{% endblock %}

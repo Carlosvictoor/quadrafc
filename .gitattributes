@@ -1,0 +1,4 @@
+# Normaliza finais de linha. Scripts de shell sempre com LF (formato Linux),
+# senão quebram ao rodar no servidor.
+* text=auto
+*.sh text eol=lf

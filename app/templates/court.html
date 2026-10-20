@@ -1,0 +1,73 @@
+{# Quadra e jogos: local, horário, valores, resumo financeiro e regras. #}
+{% extends "base.html" %}
+{% from "_macros.html" import icon %}
+{% block title %}Quadra e jogos{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <h1>Quadra e jogos</h1>
+  <a class="btn btn-primary" href="{{ url_for('main.court_edit') }}">{{ icon("edit") }} Editar quadra</a>
+</div>
+
+<div class="dash-grid">
+  <div class="dash-main">
+    <div class="court-hero field-bg" role="img" aria-label="Ilustração de uma quadra"></div>
+
+    <section class="card">
+      <div class="row-between wrap">
+        <div class="row">
+          <span class="stat-icon green">{{ icon("map-pin") }}</span>
+          <div>
+            <b style="font-size: 17px;">{{ team.court_name or "Quadra não definida" }}</b>
+            <div class="muted small">{{ team.court_address or "Endereço não informado" }}</div>
+          </div>
+        </div>
+        <a class="btn btn-outline btn-sm" href="{{ url_for('main.court_edit') }}">Editar</a>
+      </div>
+      <div class="info-grid" style="margin-top: 16px;">
+        <div class="info"><div class="k">Dia da semana</div><div class="v">{{ weekday_names[team.game_weekday] if team.game_weekday is not none else "—" }}</div></div>
+        <div class="info"><div class="k">Horário</div><div class="v">{% if team.game_start %}{{ team.game_start }}{% if team.game_end %} - {{ team.game_end }}{% endif %}{% else %}—{% endif %}</div></div>
+        <div class="info"><div class="k">Valor total da quadra</div><div class="v">{{ team.court_cost_cents|brl }}</div></div>
+      </div>
+      <div class="info" style="margin-top: 12px; background: var(--surface); border-radius: 12px; padding: 12px 14px;">
+        <div class="k">Valor padrão por jogador</div><div class="v">{{ team.price_per_player_cents|brl }}</div>
+      </div>
+      {% if game %}
+      <p class="muted small" style="margin: 14px 0 0;">📅 Próximo jogo: <b style="color: var(--text);">{{ game|data_longa }}</b> às {{ team.game_start }}</p>
+      {% endif %}
+    </section>
+  </div>
+
+  <aside class="dash-side">
+    <section class="card">
+      <div class="card-title">Resumo financeiro · {{ month.name }}</div>
+      <div class="stack" style="gap: 12px;">
+        <div class="row-between"><span class="muted">Total esperado ({{ summary.total_players }} jogadores)</span><b>{{ summary.expected_cents|brl }}</b></div>
+        <div class="row-between"><span class="muted">Arrecadado</span><b class="green">{{ summary.collected_cents|brl }}</b></div>
+        <div class="row-between"><span class="muted">Pendente</span><b class="red">{{ summary.pending_cents|brl }}</b></div>
+        {% if team.court_cost_cents %}
+        <div class="row-between" style="border-top: 1px solid var(--border); padding-top: 12px;">
+          {% set saldo = summary.collected_cents - team.court_cost_cents %}
+          <span class="muted">{{ "Sobra no caixa" if saldo >= 0 else "Falta para a quadra" }}</span>
+          <b class="{{ 'green' if saldo >= 0 else 'red' }}">{{ (saldo if saldo >= 0 else -saldo)|brl }}</b>
+        </div>
+        {% endif %}
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-title">Regras do time</div>
+      {% if team.rules_list %}
+      <ul class="rules">
+        {% for rule in team.rules_list %}<li>{{ icon("check-circle") }}<span>{{ rule }}</span></li>{% endfor %}
+      </ul>
+      {% else %}<p class="muted small">Nenhuma regra cadastrada.</p>{% endif %}
+    </section>
+
+    <div style="text-align: center; padding: 8px;">
+      <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="" style="width: 44px; margin: 0 auto 6px;">
+      <b>Juntos somos mais fortes!</b>
+    </div>
+  </aside>
+</div>
+{% endblock %}

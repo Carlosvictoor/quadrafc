@@ -1,0 +1,22 @@
+{# Tela "Entrar na sua conta". #}
+{% extends "auth/auth_layout.html" %}
+{% from "_macros.html" import field, password_field %}
+{% block title %}Entrar{% endblock %}
+
+{% block form %}
+<h1>Entrar na sua conta</h1>
+<p>Acesse seu time e gerencie os pagamentos da quadra de forma simples.</p>
+
+<form method="post" class="form" novalidate>
+  {{ form.csrf_token }}
+  {{ field(form.email, placeholder="seuemail@exemplo.com", icon_name="user", extra={"autocomplete": "email", "autofocus": true}) }}
+  {{ password_field(form.password, placeholder="Sua senha") }}
+  <div class="row-between wrap">
+    <label class="check">{{ form.remember() }} Lembrar de mim</label>
+    <a href="{{ url_for('auth.forgot_password') }}">Esqueceu a senha?</a>
+  </div>
+  <button type="submit" class="btn btn-primary btn-block" data-loading-text="Entrando...">Entrar</button>
+</form>
+
+<p class="auth-foot">Não tem uma conta? <a href="{{ url_for('auth.signup') }}"><b>Criar conta</b></a></p>
+{% endblock %}

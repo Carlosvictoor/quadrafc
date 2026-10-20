@@ -1,0 +1,65 @@
+{# Perfil e configurações: time, conta, senha, documentos e exclusão de conta.
+   Cada bloco é um formulário separado; o nome do botão diz qual foi enviado. #}
+{% extends "base.html" %}
+{% from "_macros.html" import icon, field, password_field %}
+{% block title %}Configurações{% endblock %}
+
+{% block content %}
+<div class="page-head"><h1>Perfil e configurações</h1></div>
+
+<div class="grid grid-2" style="align-items: start;">
+  <div class="stack">
+    <section class="card">
+      <div class="card-title">Dados do time {{ "" }}<a class="btn btn-outline btn-sm" href="{{ url_for('main.court_edit') }}">{{ icon("edit") }} Editar</a></div>
+      <div class="stack" style="gap: 10px;">
+        <div class="row-between"><span class="muted">Nome do time</span><b>{{ team.name }}</b></div>
+        <div class="row-between"><span class="muted">Valor padrão por jogador</span><b>{{ team.price_per_player_cents|brl }}</b></div>
+        <div class="row-between"><span class="muted">Valor da quadra</span><b>{{ team.court_cost_cents|brl }}</b></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-title">Conta</div>
+      <form method="post" class="form" novalidate>
+        {{ account_form.csrf_token }}
+        {{ field(account_form.name, extra={"maxlength": 80, "autocomplete": "name"}) }}
+        {{ field(account_form.email, extra={"autocomplete": "email"}) }}
+        <div class="form-actions"><button type="submit" name="conta-submit" value="1" class="btn btn-primary btn-sm">Salvar conta</button></div>
+      </form>
+    </section>
+  </div>
+
+  <div class="stack">
+    <section class="card">
+      <div class="card-title">Alterar senha</div>
+      <form method="post" class="form" novalidate>
+        {{ password_form.csrf_token }}
+        {{ password_field(password_form.current, placeholder="Senha atual") }}
+        {{ password_field(password_form.password, placeholder="Mínimo de 6 caracteres", autocomplete="new-password") }}
+        {{ password_field(password_form.confirm, placeholder="Repita a nova senha", autocomplete="new-password") }}
+        <div class="form-actions"><button type="submit" name="senha-submit" value="1" class="btn btn-primary btn-sm">Alterar senha</button></div>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="card-title">Documentos</div>
+      <div class="stack" style="gap: 10px;">
+        <a href="{{ url_for('main.terms') }}" class="row">{{ icon("file") }} Termos de uso</a>
+        <a href="{{ url_for('main.privacy') }}" class="row">{{ icon("shield") }} Política de privacidade</a>
+      </div>
+    </section>
+
+    <section class="card" style="border-color: rgba(255,65,77,.45);">
+      <div class="card-title red">Excluir conta</div>
+      <p class="muted small" style="margin-top: 0;">Apaga sua conta, o time, os jogadores e todo o histórico. Esta ação não pode ser desfeita.</p>
+      <form method="post" class="form" novalidate
+            data-confirm="Sua conta e TODOS os dados do time serão apagados para sempre."
+            data-confirm-title="Excluir conta?" data-confirm-ok="Excluir tudo">
+        {{ delete_form.csrf_token }}
+        {{ password_field(delete_form.password, placeholder="Sua senha") }}
+        <div class="form-actions"><button type="submit" name="excluir-submit" value="1" class="btn btn-danger btn-sm">{{ icon("trash") }} Excluir conta</button></div>
+      </form>
+    </section>
+  </div>
+</div>
+{% endblock %}

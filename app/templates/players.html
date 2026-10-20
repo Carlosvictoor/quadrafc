@@ -1,0 +1,65 @@
+{# Lista de jogadores com busca, filtros e ordenação. #}
+{% extends "base.html" %}
+{% from "_macros.html" import icon, avatar, chip, empty %}
+{% block title %}Jogadores{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Jogadores</h1>
+    <p class="muted">Situação de {{ month.label|lower }}.</p>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('main.player_new') }}">{{ icon("plus") }} Adicionar jogador</a>
+</div>
+
+{% if not team.players %}
+  <div class="card">{{ empty("users", "Nenhum jogador ainda", "Adicione os jogadores do seu time para controlar quem pagou.", url_for('main.player_new'), "Adicionar jogador") }}</div>
+{% else %}
+<div class="card stack">
+  {# Busca: filtra na hora (JavaScript) e também funciona sem JS (enviando o formulário). #}
+  <form method="get" class="field" role="search">
+    <input type="hidden" name="filtro" value="{{ status }}">
+    <input type="hidden" name="ordem" value="{{ order }}">
+    <div class="input-icon">{{ icon("search") }}
+      <input type="search" name="q" value="{{ query }}" placeholder="Pesquisar jogador..." aria-label="Pesquisar jogador" data-live-search>
+    </div>
+  </form>
+
+  <div class="row-between wrap">
+    <div class="filters" aria-label="Filtrar">
+      <a class="filter {{ 'on' if status == 'todos' }}" href="{{ url_for('main.players', filtro='todos', ordem=order, q=query or None) }}">Todos ({{ team.players|length }})</a>
+      <a class="filter {{ 'on' if status == 'pagos' }}" href="{{ url_for('main.players', filtro='pagos', ordem=order, q=query or None) }}">Pagos ({{ summary.paid_count }})</a>
+      <a class="filter red {{ 'on' if status == 'pendentes' }}" href="{{ url_for('main.players', filtro='pendentes', ordem=order, q=query or None) }}">Pendentes ({{ summary.pending_count }})</a>
+    </div>
+    <div class="row small">
+      <span class="muted">Ordenar por:</span>
+      <a class="filter {{ 'on' if order == 'pendentes' }}" href="{{ url_for('main.players', filtro=status, ordem='pendentes', q=query or None) }}">Pendentes primeiro</a>
+      <a class="filter {{ 'on' if order == 'nome' }}" href="{{ url_for('main.players', filtro=status, ordem='nome', q=query or None) }}">Nome</a>
+    </div>
+  </div>
+
+  <ul class="list">
+    {% for p in rows %}
+    {% set paid = summary.is_paid(p.id) %}
+    <li class="list-item {{ 'inactive' if not p.active }}" data-search-item="{{ p.name }} {{ p.nickname }}">
+      {{ avatar(p.name, paid if p.active else None) }}
+      <div class="grow">
+        <div class="name">{{ p.name }}{% if p.nickname %} <span class="muted">"{{ p.nickname }}"</span>{% endif %}</div>
+        <div class="muted small">{{ p.amount_cents|brl }}{% if p.phone %} · {{ p.phone }}{% endif %}{% if not p.active %} · Inativo{% endif %}</div>
+      </div>
+      {% if p.active %}
+        {{ chip(paid) }}
+        {% if not paid %}
+        <a class="btn btn-primary btn-sm hide-mobile" href="{{ url_for('main.payment_new', jogador=p.id) }}">Pagar</a>
+        {% endif %}
+      {% endif %}
+      <a class="icon-btn" href="{{ url_for('main.player_edit', player_id=p.id) }}" aria-label="Editar {{ p.name }}">{{ icon("edit") }}</a>
+    </li>
+    {% else %}
+    <li class="muted" style="padding: 20px; text-align: center;">Nenhum jogador nesta lista.</li>
+    {% endfor %}
+  </ul>
+  <p class="muted" data-search-empty hidden style="text-align: center;">Nenhum jogador encontrado.</p>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,26 @@
+{# Layout das telas de entrada: marca com fundo de estádio à esquerda
+   e o formulário à direita (no celular, um embaixo do outro). #}
+{% extends "layout.html" %}
+
+{% block body %}
+<div class="auth">
+  <section class="auth-hero field-bg">
+    <div>
+      <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="Logo do QuadraPro">
+      <span class="brand-name">QUADRA<b style="color: var(--green)">PRO</b></span>
+      <p class="slogan">Seu time, sem boleto<br>e sem confusão</p>
+      <p class="hero-text muted" style="max-width: 360px; margin: 18px auto 0;">
+        Organize os pagamentos da quadra e mantenha seu time sempre unido!
+      </p>
+    </div>
+  </section>
+  <section class="auth-panel">
+    <div class="auth-box">
+      {% block form %}{% endblock %}
+      <p class="small muted" style="text-align: center; margin-top: 28px;">
+        QuadraPro © {{ current_month.year }} · Seu time, sem boleto e sem confusão.
+      </p>
+    </div>
+  </section>
+</div>
+{% endblock %}

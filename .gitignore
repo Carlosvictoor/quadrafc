@@ -1,0 +1,20 @@
+# Ambiente Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Banco de dados local e segredos
+instance/
+.env
+
+# Configurações locais do Claude Code
+.claude/settings.local.json
+
+# Sistema / editor
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Pacote gerado para publicar
+dist/

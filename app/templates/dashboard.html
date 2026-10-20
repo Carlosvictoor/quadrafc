@@ -1,0 +1,151 @@
+{# Painel inicial: saudação, time, próximo jogo, totais do mês,
+   rosca de % pagos, lista de pendentes e atalhos. #}
+{% extends "base.html" %}
+{% from "_macros.html" import icon, avatar %}
+{% block title %}Início{% endblock %}
+
+{% block content %}
+<div class="page-head hello">
+  <div>
+    <h1>Olá, {{ current_user.first_name }}! 👋</h1>
+    <p class="muted">Aqui está o resumo de {{ month.name|lower }} do seu time.</p>
+  </div>
+  <a class="btn btn-outline btn-sm" href="{{ url_for('main.share') }}">{{ icon("share") }} Compartilhar resumo</a>
+</div>
+
+<div class="dash-grid">
+  <div class="dash-main">
+    {# Cartão do time com fundo de campo. #}
+    <section class="team-card field-bg">
+      <div class="row">
+        <img class="team-logo" src="{{ url_for('static', filename='img/logo.svg') }}" alt="">
+        <div style="min-width: 0;">
+          <h2>{{ team.name }}</h2>
+          <p class="muted" style="margin: 2px 0 0;">{{ team.description }}</p>
+        </div>
+      </div>
+      <div class="row-between wrap" style="margin-top: 22px;">
+        <span class="row muted small team-meta">{{ icon("users") }}
+          {{ team.active_players|length }} jogador{{ "es" if team.active_players|length != 1 }}</span>
+        <a class="btn btn-outline btn-sm" href="{{ url_for('main.court') }}">Ver detalhes</a>
+      </div>
+    </section>
+
+    {# Totais do mês. #}
+    <section class="grid grid-3 stats-row">
+      <div class="card stat">
+        <span class="stat-icon green">{{ icon("check") }}</span>
+        <div>
+          <div class="stat-label">Total arrecadado</div>
+          <div class="stat-value green">{{ summary.collected_cents|brl }}</div>
+          <div class="stat-sub">{{ summary.paid_count }} jogador{{ "es" if summary.paid_count != 1 }}</div>
+        </div>
+      </div>
+      <div class="card stat">
+        <span class="stat-icon red">{{ icon("alert") }}</span>
+        <div>
+          <div class="stat-label">Pendente</div>
+          <div class="stat-value red">{{ summary.pending_cents|brl }}</div>
+          <div class="stat-sub">{{ summary.pending_count }} jogador{{ "es" if summary.pending_count != 1 }}</div>
+        </div>
+      </div>
+      <div class="card stat">
+        <span class="stat-icon blue">{{ icon("court") }}</span>
+        <div>
+          <div class="stat-label">Valor da quadra</div>
+          <div class="stat-value">{{ team.court_cost_cents|brl }}</div>
+          <div class="stat-sub">{{ summary.total_players }} jogador{{ "es" if summary.total_players != 1 }}</div>
+        </div>
+      </div>
+    </section>
+
+    {% if summary.total_players %}
+    <section class="card">
+      <div class="row-between small">
+        <span>{{ summary.paid_count }} de {{ summary.total_players }} jogadores pagaram</span>
+        {% if team.court_cost_cents and summary.collected_cents < team.court_cost_cents %}
+          <span class="muted">Faltam {{ (team.court_cost_cents - summary.collected_cents)|brl }} para cobrir a quadra</span>
+        {% elif team.court_cost_cents %}
+          <span class="green">Quadra paga! ✅</span>
+        {% endif %}
+      </div>
+      <div class="progress" style="margin-top: 10px;"><span data-progress="{{ summary.percent_paid }}"></span></div>
+    </section>
+    {% endif %}
+
+    {# Dicas para quem está começando. #}
+    {% if not team.players %}
+    <a class="card row" href="{{ url_for('main.player_new') }}" style="border-color: rgba(24,230,107,.45); color: inherit; text-decoration: none;">
+      <span class="stat-icon green">{{ icon("user-plus") }}</span>
+      <div class="grow" style="flex: 1;"><b>Adicione seus jogadores</b><br><span class="muted small">Cadastre quem joga com você para começar a controlar os pagamentos.</span></div>
+      <span class="green"><b>Adicionar</b></span>
+    </a>
+    {% endif %}
+    {% if not team.court_cost_cents or team.game_weekday is none %}
+    <a class="card row" href="{{ url_for('main.court_edit') }}" style="border-color: rgba(24,230,107,.45); color: inherit; text-decoration: none;">
+      <span class="stat-icon green">{{ icon("court") }}</span>
+      <div style="flex: 1;"><b>Configure a quadra e o jogo</b><br><span class="muted small">Informe o valor do aluguel, o endereço e o dia do jogo.</span></div>
+      <span class="green"><b>Configurar</b></span>
+    </a>
+    {% endif %}
+
+    <div class="actions-row">
+      <a class="btn btn-primary" href="{{ url_for('main.payment_new') }}">{{ icon("plus-circle") }} Registrar pagamento</a>
+      <a class="btn btn-outline" href="{{ url_for('main.players') }}">{{ icon("users") }} Ver jogadores</a>
+    </div>
+  </div>
+
+  <aside class="dash-side">
+    {# Próximo jogo (calculado pelo dia da semana e horário). #}
+    <section class="card game-card">
+      <div class="card-title">Próximo jogo</div>
+      {% if game %}
+        <div class="row">
+          <span class="stat-icon blue">{{ icon("calendar") }}</span>
+          <div>
+            <div class="when">{{ game|data_curta }}</div>
+            <div class="muted small">{{ team.game_start }}{% if team.game_end %} - {{ team.game_end }}{% endif %}{% if team.court_name %} · {{ team.court_name }}{% endif %}</div>
+          </div>
+        </div>
+      {% else %}
+        <p class="muted small" style="margin: 0;">Nenhum jogo fixo definido.</p>
+      {% endif %}
+      <a class="small" href="{{ url_for('main.court') }}" style="display: inline-block; margin-top: 12px;">Ver detalhes</a>
+    </section>
+
+    {# Rosca com a porcentagem de pagos + lista de pendentes. #}
+    <section class="card">
+      <div class="row" style="gap: 18px;">
+        <div class="donut" data-donut="{{ summary.percent_paid }}" role="img" aria-label="{{ summary.percent_paid }}% dos jogadores pagaram">
+          <div class="donut-label"><strong>{{ summary.percent_paid }}%</strong><span>Pagos</span></div>
+        </div>
+        <div style="flex: 1; min-width: 0;">
+          <div class="card-title" style="margin-bottom: 10px;">Pendentes</div>
+          {% if summary.pending_players %}
+          <ul class="mini-list">
+            {% for p in summary.pending_players[:5] %}
+            <li><span class="dot"></span><span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ p.name }}</span><span class="muted">{{ p.amount_cents|brl }}</span></li>
+            {% endfor %}
+          </ul>
+          {% elif summary.total_players %}
+            <p class="green small" style="margin: 0;">Todo mundo pagou! 🎉</p>
+          {% else %}
+            <p class="muted small" style="margin: 0;">Sem jogadores ainda.</p>
+          {% endif %}
+        </div>
+      </div>
+      {% if summary.pending_players %}
+      <a class="small" href="{{ url_for('main.players', filtro='pendentes') }}" style="display: inline-block; margin-top: 14px;">Ver todos</a>
+      {% endif %}
+    </section>
+
+    {# Busca rápida que leva para a lista de jogadores. #}
+    <section class="card">
+      <div class="card-title">Ver jogadores</div>
+      <form method="get" action="{{ url_for('main.players') }}" class="field">
+        <div class="input-icon">{{ icon("search") }}<input type="search" name="q" placeholder="Buscar jogador..." aria-label="Buscar jogador"></div>
+      </form>
+    </section>
+  </aside>
+</div>
+{% endblock %}

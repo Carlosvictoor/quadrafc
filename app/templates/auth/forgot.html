@@ -1,0 +1,25 @@
+{# Tela "Esqueci minha senha": envia um link para criar nova senha. #}
+{% extends "auth/auth_layout.html" %}
+{% from "_macros.html" import field, icon %}
+{% block title %}Recuperar senha{% endblock %}
+
+{% block form %}
+{% if sent %}
+  <div class="empty" style="padding: 0;">
+    <div class="empty-icon">{{ icon("mail") }}</div>
+    <h3>Confira seu e-mail</h3>
+    <p>Se existir uma conta com <b>{{ sent }}</b>, você vai receber um link para criar uma nova senha
+       (válido por 1 hora). Veja também a caixa de spam.</p>
+    <a class="btn btn-primary btn-block" href="{{ url_for('auth.login') }}">Voltar para o login</a>
+  </div>
+{% else %}
+  <a class="back-link" href="{{ url_for('auth.login') }}">{{ icon("arrow-left") }} Voltar</a>
+  <h1>Recuperar senha</h1>
+  <p>Digite o e-mail da sua conta. Vamos enviar um link para você criar uma nova senha.</p>
+  <form method="post" class="form" novalidate>
+    {{ form.csrf_token }}
+    {{ field(form.email, placeholder="seuemail@exemplo.com", icon_name="mail", extra={"autocomplete": "email", "autofocus": true}) }}
+    <button type="submit" class="btn btn-primary btn-block" data-loading-text="Enviando...">Enviar link</button>
+  </form>
+{% endif %}
+{% endblock %}

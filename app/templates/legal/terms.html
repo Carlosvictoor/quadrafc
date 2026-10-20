@@ -1,0 +1,32 @@
+{# Termos de Uso (texto modelo: revise antes de publicar). #}
+{% extends "layout.html" %}
+{% block title %}Termos de uso{% endblock %}
+{% block body %}
+<main class="doc">
+  <a class="brand" href="{{ url_for('main.dashboard') }}" style="margin-bottom: 24px;">
+    <img src="{{ url_for('static', filename='img/logo.svg') }}" alt=""><span class="brand-name">QUADRA<b>PRO</b></span>
+  </a>
+  <h1>Termos de Uso</h1>
+  <p class="muted">Última atualização: {{ current_month.label }}</p>
+
+  <h2>1. O que é o QuadraPro</h2>
+  <p>O QuadraPro é uma ferramenta para administradores de times de futebol organizarem o pagamento do aluguel da quadra: cadastro de jogadores, registro de pagamentos e acompanhamento de pendências.</p>
+
+  <h2>2. Sua conta</h2>
+  <p>Você é responsável por manter sua senha em segredo e pelas informações que cadastra. Use dados verdadeiros e não compartilhe seu acesso.</p>
+
+  <h2>3. Uso permitido</h2>
+  <p>O serviço deve ser usado apenas para organizar as finanças do seu time. É proibido usar o site para atividades ilegais, tentar acessar dados de outros usuários ou prejudicar o funcionamento do serviço.</p>
+
+  <h2>4. Pagamentos</h2>
+  <p>O QuadraPro <b>não processa pagamentos</b>: ele apenas registra os valores informados por você. Os acertos entre os jogadores acontecem fora do site (Pix, dinheiro etc.).</p>
+
+  <h2>5. Exclusão da conta</h2>
+  <p>Você pode excluir sua conta a qualquer momento em Configurações → Excluir conta. Todos os dados do time são apagados.</p>
+
+  <h2>6. Alterações</h2>
+  <p>Estes termos podem ser atualizados. Mudanças importantes serão avisadas no site.</p>
+
+  <p style="margin-top: 32px;"><a href="javascript:history.back()">← Voltar</a></p>
+</main>
+{% endblock %}

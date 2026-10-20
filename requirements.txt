@@ -1,0 +1,10 @@
+# Dependências do QuadraPro Web (instale com: pip install -r requirements.txt)
+Flask==3.1.2              # framework web
+Flask-SQLAlchemy==3.1.1   # banco de dados (SQLite / PostgreSQL)
+Flask-Login==0.6.3        # sessão do usuário logado
+Flask-WTF==1.2.2          # formulários com proteção CSRF
+email-validator==2.3.0    # validação de e-mail nos formulários
+python-dotenv==1.1.1      # lê as configurações do arquivo .env
+gunicorn==23.0.0          # servidor de produção (Linux)
+psycopg[binary]==3.2.10   # driver do PostgreSQL (produção)
+pytest==8.4.2             # testes automáticos

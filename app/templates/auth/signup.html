@@ -1,0 +1,28 @@
+{# Tela "Criar conta": cadastra o administrador e o time juntos. #}
+{% extends "auth/auth_layout.html" %}
+{% from "_macros.html" import field, password_field %}
+{% block title %}Criar conta{% endblock %}
+
+{% block form %}
+<h1>Criar conta</h1>
+<p>Preencha os dados para criar sua conta.</p>
+
+<form method="post" class="form" novalidate>
+  {{ form.csrf_token }}
+  {{ field(form.name, placeholder="Ex: João Silva", icon_name="user", extra={"autocomplete": "name", "maxlength": 80}) }}
+  {{ field(form.team_name, placeholder="Ex: Resenha FC", icon_name="shield", extra={"maxlength": 60}) }}
+  {{ field(form.email, placeholder="Ex: joao@email.com", icon_name="mail", extra={"autocomplete": "email"}) }}
+  {{ password_field(form.password, placeholder="Mínimo de 6 caracteres", autocomplete="new-password") }}
+  <div class="field{% if form.accept_terms.errors %} has-error{% endif %}">
+    <label class="check">
+      {{ form.accept_terms() }}
+      <span>Li e aceito os <a href="{{ url_for('main.terms') }}" target="_blank">Termos de Uso</a>
+        e a <a href="{{ url_for('main.privacy') }}" target="_blank">Política de Privacidade</a></span>
+    </label>
+    {% for e in form.accept_terms.errors %}<div class="error">{{ e }}</div>{% endfor %}
+  </div>
+  <button type="submit" class="btn btn-primary btn-block" data-loading-text="Criando...">Criar conta</button>
+</form>
+
+<p class="auth-foot">Já tem uma conta? <a href="{{ url_for('auth.login') }}"><b>Entrar</b></a></p>
+{% endblock %}
